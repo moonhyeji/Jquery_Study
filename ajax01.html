@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+<style type="text/css">
+
+*{
+margin: 0px;
+padding: 0px;
+margin-left:30px;}
+table{width: 400px;}
+table tr:nth-child(odd){background-color:orange;}
+fieldset{width: 400px;}
+body{width:1000px; margin:50px auto;}
+
+</style>
+
+
+
+
+<script type="text/javascript" src="resources/js/jquery-3.6.0.min.js"></script>
+<script type="text/javascript">
+
+  $(function(){ //페이지가전부 로드된 후 실행,
+  $("#emp_list").click(function(){ //emp_list라는 아이디를가진 테그를 클릭이벤트 실행하도록함.
+
+	 var empid = $("input[name=empid]").val(); //사원번호 입력받은 값을 가져오는 것.
+	 //name=empid인 input태그의 값을 가져와서 empid라는 변수에 넣음.
+
+	 if(!isNaN(empid)&& empid.length == 3){
+		 //가져온 값이 숫자가 아니거나가 아니고 = 숫자이고, 길이가 3이라면, 3자리수라면 (유효성검사  )----(1)
+		 //여기부터 어려워! ajax api 꼭 읽어보기!!!!!!!!!!!!!!!!!!!!!!!!!
+		 $.ajax({
+			 url: "emplist.xml",  //랑 통신할 건데 , // url: 통신할 (요청할 ) 서버(혹은 데이터) 주소
+		     method:"get", //get방식으로 ,// 전송 방식을 선택 get방식이나 post 방식 /get;데이터가 리퀘스트 헤더에 저장되느냐,  post:바디어 저장되느냐 의 차이.
+		     async: true,  //비동기로 통신할거야 . //동기로 ?비동기로 전송?  default: 는 true(비동기.)/ false(동기 )
+		     dataType:"xml", //응답받은 데이터의 형식(type):xml, json. html, script, text
+		    //기본적으로 응답받을 때의 타입은 string 인데 우리는 xml형식으로 응답받을거야. 성공하면 emplist.xml 이 data 안으로 들어갈거야,
+		     //data :{"key":"vlaue",  "key":"vlaue"} // 전송할 데이터의 값을 이런 형식으로
+
+
+		     success:function(data){ // 통신이 성공했을 때, 실행할 함수,
+		    	 var empinfo = $(data).find("EMPLOYEE_ID:contains(" + empid + ")").parent();
+		        // $(data) = emplist.xml.에서 ()를 찾아라. =.find(empid변수)//empid = 입력받은 값.
+		       //여기서 empid 에 100을 넣었따고 한다면, <EMPLOYEE_ID>100</EMPLOYEE_ID> 얘를 find 했고,
+		       //얘의 parent 니까 <ROW><EMPLOYEE_ID>100</EMPLOYEE_ID> ~~ </ROW>까지가 됨.
+
+		       if((empinfo).is("ROW")){
+		    	 //empinfo = <ROW><EMPLOYEE_ID>100</EMPLOYEE_ID> ~~ </ROW>인데, 얘가 ROW인가? 해서 참이면 아래 실행 ----[1]
+
+		    	    $("table input").each(function(i){
+                //table태그의 input태그애들을 가져와서. 각각 i번지 인텍스에 넣어주자.
+                //each function이 하는 것.
+		            $(this).val($(empinfo).children().eq(i).text());
+                //////text():해당 요소의 텍스트를 설정하거나 텍스트값을 반환합니다.
+                //$(empinfo)(= <ROW> ~ ~ </ROW>)에서 .자식요소들의.
+                //0번지의 값은 EMPLOYEE_ID
+                //1번지의 값은 LASTNAME
+                //2번지의 값은 EMAIL.....4번지인덱스의.텍스트의.값을 가져와서
+                //$("table input").의 value 값으로 해주자.
+		         });
+		         }else{   //-------------------[2]아니라면, ROW가 아니다 라면, = 값이 없다는 말,
+		        	 alert("검색대상이 존재하지 않습니다."); //[2] 알림뜨게 하기.
+		         }
+		     },
+		     error:function(request, error){  //통신에 실패했을 때 실행할함수,
+		    	 alert("code:" + request.status + "\n\n"+
+		     	       "message" + request.responseText + "\n\n"+
+		       	     "error:" + error);
+		     }
+		 });
+	 }else{
+		 alert("사원번호를 다시 확인해 주세요 ! ") //------(2) 다시 확인해 주세요.
+	 }
+  });
+});
+
+
+
+</script>
+</head>
+<body>
+
+<!--
+  ajax: Asynchronous Javascript And Xml
+  서버 처리르르 기다리지 않고 *비동기* 요청
+  *비동기* :
+-->
+<h1>데이터 가져오기 </h1>
+<fieldset>
+   <legend>사원정보 조회</legend>
+  <input type="text" name="empid">     <!-- 사원정보 조회하는 text 넣는 입력칸 -->
+  <input type="button" id="emp_list" value="조회">   <!--  입력칸 바로 옆에 있는 조회버튼 -->
+
+</fieldset>
+<table>
+  <tr>
+	  <td>사원번호</td>
+	  <td><input type="text" name="empnum"></td>
+  </tr>
+
+  <tr>
+	  <td>이름</td>
+	  <td><input type="text" name="lastname"></td>
+  </tr>
+
+  <tr>
+	  <td>이메일</td>
+	  <td><input type="text" name="email"></td>
+  </tr>
+
+  <tr>
+	  <td>전화번호</td>
+	  <td><input type="text" name="phone"></td>
+  </tr>
+
+  <tr>
+	  <td>입사일</td>
+	  <td><input type="text" name="hire"></td>
+  </tr>
+
+</table>
+
+
+
+</body>
+</html>
