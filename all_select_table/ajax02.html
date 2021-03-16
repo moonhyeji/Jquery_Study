@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>jq22</title>
+
+<style type="text/css">
+	*{margin:0px;padding:0px;}
+
+	table{width: 900px;}
+
+	table tr:nth-child(1){background: orange;}
+	/* HTML 표의 1번째 행을 오렌지색으로 나타냄  */
+
+	fieldset{width: 400px;}
+
+	body {width: 1000px; margin: 50px auto;}
+
+</style>
+
+ <script type="text/javascript" src="resources/js/jquery-3.6.0.min.js"></script>
+ <script type="text/javascript" src="resources/js/create_table.js"></script>
+
+<script type="text/javascript">
+
+	$(function(){ //페이지 전부 로드된 후 실행
+		$("#emp_search").click(function(){ //id가 emp_search인 input태그에 click 이벤트 실행
+			$.ajax({ //비동기 통신 선언,
+				url:"emplist.xml",  //데이터 주소가 emplist.xml인 url이랑 통신할거고,
+				dataType:"xml",   //응답받을 데이터의 형식을 xml로 할거고,
+				success:function(data){  // 통신에 성공했을 경우, 함수실행 (여기서 data는 = 통신된 emplist.xml)
+					var empRowList = $(data).find("ROW");   //emplist.xml 에서 <ROW> ~ ~ </ROW>부분을 찾아서 변수 empRowList 에 넣음.
+					$("body").append(makeTable(empRowList));  //변수 empRowList를 가지고 테이블을 생성해서, body부분의 가장 끝부분에 추가함.
+				},
+				error:function(){ //통신에 실패했을 경우
+					alert("통신 실패");	//통신실패 알림창 뜨도록 하기
+				}
+			});
+
+		});
+	});
+
+</script>
+</head>
+<body>
+	<h1>데이터 가져오기</h1>
+	<fieldset>  <!--  여러 개의 폼 요소를 그룹화하여 구조적으로 만들기 위해 사용 -->
+		<legend>사원 전체 조회</legend>  <!-- legend> : 폼 요소의 제목으로 <fieldset> 내부 최상단에 작성 -->
+		<input type="button" value="조회" id="emp_search"/>
+	</fieldset>
+</body>
+</html>
